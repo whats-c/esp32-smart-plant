@@ -1,17 +1,17 @@
 
 # LVGL TEMPLATE
-Basic template for ST7789 driver and esp32.
+Basic template for ST7735s driver and esp32.
 
 ## About ESP32
 
-* board: ESP32-WROVER
-* flash size: 16MB
-* esp-idf: v4.4
+* board: ESP32
+* flash size: 4MB
+* esp-idf: v5.0
 
 ## About LCD TFT
 
-* LCD driver: ST7789
-* LCD module: 1.54 TFT SPI 240x240
+* LCD driver: ST7735s
+* LCD module: 1.54 TFT SPI 80*160
 
 
 ## About LVGL
