@@ -4,5 +4,7 @@
     "freertos.h": "c",
     "lv_examples.h": "c"
   },
-  "idf.adapterTargetName": "esp32"
+  "idf.adapterTargetName": "esp32",
+  "idf.flashType": "UART",
+  "idf.portWin": "COM14"
 }
