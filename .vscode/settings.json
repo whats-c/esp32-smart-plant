@@ -1,0 +1,8 @@
+{
+  "C_Cpp.intelliSenseEngine": "Tag Parser",
+  "files.associations": {
+    "freertos.h": "c",
+    "lv_examples.h": "c"
+  },
+  "idf.adapterTargetName": "esp32"
+}
