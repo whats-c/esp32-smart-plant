@@ -1,0 +1,1 @@
+// the wifi-page shows the wifi connection information
