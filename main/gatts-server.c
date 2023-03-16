@@ -213,7 +213,7 @@ struct gatts_smart_plant_profile_inst
 };
 
 /* One gatt-based profile one app_id and one gatts_if, this array will store the gatts_if returned by ESP_GATTS_REG_EVT */
-static struct gatts_profile_inst gl_profile_tab[PROFILE_NUM] = {
+static struct gatts_smart_plant_profile_inst gl_profile_tab[PROFILE_NUM] = {
     [PROFILE_SMART_PLANT_APP_ID] = {
         .gatts_cb = gatts_profile_a_event_handler,
         .gatts_if = ESP_GATT_IF_NONE, /* Not get the gatt_if, so initial is ESP_GATT_IF_NONE */
@@ -306,7 +306,7 @@ static void gatts_smart_plant_profile_handler(esp_gatts_cb_event_t event, esp_ga
         gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_service_id.id.uuid.len = ESP_UUID_LEN_16;
         gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_service_id.id.uuid.uuid.uuid16 = GATTS_CHAR_UUID_WIFI_STATUS;
 
-        esp_err_t set_dev_name_ret = esp_ble_gap_set_device_name(TEST_DEVICE_NAME);
+        esp_err_t set_dev_name_ret = esp_ble_gap_set_device_name(DEVICE_NAME);
         if (set_dev_name_ret)
         {
             ESP_LOGE(GATTS_TAG, "set device name failed, error code = %x", set_dev_name_ret);
@@ -351,42 +351,42 @@ static void gatts_smart_plant_profile_handler(esp_gatts_cb_event_t event, esp_ga
     case ESP_GATTS_READ_EVT:
     {
 
-        ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, connection_id %d, trans_id %d, handle %d", param->read.conn_id, param->read.trans_id, param->read.handle);
+        ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, connection_id %d, trans_id %ld, handle %d", param->read.conn_id, param->read.trans_id, param->read.handle);
         esp_gatt_rsp_t rsp;
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
 
-        // the soil characteristic
-        if (param->read.handle == gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].soil_char_handle)
-        {
-            smoke_smoke_t smoke_smoke_value;
-            rsp.attr_value.handle = param->read.handle;
-            rsp.attr_value.len = gatts_smoke_smoke_val.attr_len;
-            smoke_smoke_value = (smoke_smoke_t)GetSmoke();
-            memcpy(gatts_smoke_smoke_val.attr_value, &smoke_smoke_value, gatts_smoke_smoke_val.attr_len);
-            memcpy(rsp.attr_value.value, gatts_smoke_smoke_val.attr_value, gatts_smoke_smoke_val.attr_len);
-        } // the illuminance characteristic
-        else if (param->read.handle == gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].illuminance_char_handle)
-        {
-            smoke_smoke_t smoke_smoke_value;
-            rsp.attr_value.handle = param->read.handle;
-            rsp.attr_value.len = gatts_smoke_smoke_val.attr_len;
-            smoke_smoke_value = (smoke_smoke_t)GetSmoke();
-            memcpy(gatts_smoke_smoke_val.attr_value, &smoke_smoke_value, gatts_smoke_smoke_val.attr_len);
-            memcpy(rsp.attr_value.value, gatts_smoke_smoke_val.attr_value, gatts_smoke_smoke_val.attr_len);
-        } // the wifi characteristic
-        else if (param->read.handle == gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_char_handle)
-        {
-            smoke_smoke_t smoke_smoke_value;
-            rsp.attr_value.handle = param->read.handle;
-            rsp.attr_value.len = gatts_smoke_smoke_val.attr_len;
-            smoke_smoke_value = (smoke_smoke_t)GetSmoke();
-            memcpy(gatts_smoke_smoke_val.attr_value, &smoke_smoke_value, gatts_smoke_smoke_val.attr_len);
-            memcpy(rsp.attr_value.value, gatts_smoke_smoke_val.attr_value, gatts_smoke_smoke_val.attr_len);
-        } // another condition
-        else
-        {
-            ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, read error handle %d\n\r", param->read.handle);
-        }
+        // // the soil characteristic
+        // if (param->read.handle == gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].soil_char_handle)
+        // {
+        //     smoke_smoke_t smoke_smoke_value;
+        //     rsp.attr_value.handle = param->read.handle;
+        //     rsp.attr_value.len = gatts_smoke_smoke_val.attr_len;
+        //     smoke_smoke_value = (smoke_smoke_t)GetSmoke();
+        //     memcpy(gatts_smoke_smoke_val.attr_value, &smoke_smoke_value, gatts_smoke_smoke_val.attr_len);
+        //     memcpy(rsp.attr_value.value, gatts_smoke_smoke_val.attr_value, gatts_smoke_smoke_val.attr_len);
+        // } // the illuminance characteristic
+        // else if (param->read.handle == gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].illuminance_char_handle)
+        // {
+        //     smoke_smoke_t smoke_smoke_value;
+        //     rsp.attr_value.handle = param->read.handle;
+        //     rsp.attr_value.len = gatts_smoke_smoke_val.attr_len;
+        //     smoke_smoke_value = (smoke_smoke_t)GetSmoke();
+        //     memcpy(gatts_smoke_smoke_val.attr_value, &smoke_smoke_value, gatts_smoke_smoke_val.attr_len);
+        //     memcpy(rsp.attr_value.value, gatts_smoke_smoke_val.attr_value, gatts_smoke_smoke_val.attr_len);
+        // } // the wifi characteristic
+        // else if (param->read.handle == gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_char_handle)
+        // {
+        //     smoke_smoke_t smoke_smoke_value;
+        //     rsp.attr_value.handle = param->read.handle;
+        //     rsp.attr_value.len = gatts_smoke_smoke_val.attr_len;
+        //     smoke_smoke_value = (smoke_smoke_t)GetSmoke();
+        //     memcpy(gatts_smoke_smoke_val.attr_value, &smoke_smoke_value, gatts_smoke_smoke_val.attr_len);
+        //     memcpy(rsp.attr_value.value, gatts_smoke_smoke_val.attr_value, gatts_smoke_smoke_val.attr_len);
+        // } // another condition
+        // else
+        // {
+        //     ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, read error handle %d\n\r", param->read.handle);
+        // }
     }
     case ESP_GATTS_WRITE_EVT:
     // {
@@ -455,41 +455,41 @@ static void gatts_smart_plant_profile_handler(esp_gatts_cb_event_t event, esp_ga
     case ESP_GATTS_CREATE_EVT:
         ESP_LOGI(GATTS_TAG, "CREATE_SERVICE_EVT, status %d,  service_handle %d\n", param->create.status, param->create.service_handle);
 
-        if (param.create.service_id.uuid.uuid.uuid16 == GATTS_SERVICE_UUID_SOIL_MOISTURE)
+        if (param->create.service_id.id.uuid.uuid.uuid16 == GATTS_SERVICE_UUID_SOIL_MOISTURE)
         {
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].soil_service_handle = param->create.service_handle;
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].soil_char_uuid.len = ESP_UUID_LEN_16;
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].soil_char_uuid.uuid.uuid16 = GATTS_CHAR_UUID_SOIL_MOISTURE;
 
             esp_ble_gatts_start_service(gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].soil_service_handle);
-            soil_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
+            smart_plant_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
             esp_err_t add_char_ret = esp_ble_gatts_add_char(gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].soil_service_handle, &gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].soil_char_uuid,
                                                             ESP_GATT_PERM_READ,
-                                                            soil_property,
-                                                            &gatts_demo_char1_val, NULL);
+                                                            smart_plant_property,
+                                                            &gatts_smart_plant_soil_moisture_val, NULL);
             if (add_char_ret)
             {
                 ESP_LOGE(GATTS_TAG, "add char failed, error code =%x", add_char_ret);
             }
         } //
-        else if (para.create.service_id.uuid.uuid.uuid16 == GATTS_SERVICE_UUID_SOIL_TEMPERATURE)
+        else if (param->create.service_id.id.uuid.uuid.uuid16 == GATTS_SERVICE_UUID_ILLUMINANCE)
         {
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].illuminance_service_handle = param->create.service_handle;
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].illuminance_char_uuid.len = ESP_UUID_LEN_16;
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].illuminance_char_uuid.uuid.uuid16 = GATTS_CHAR_UUID_ILLUMINANCE;
 
             esp_ble_gatts_start_service(gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].illuminance_service_handle);
-            illuminance_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
+            smart_plant_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
             esp_err_t add_char_ret = esp_ble_gatts_add_char(gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].illuminance_service_handle, &gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].illuminance_char_uuid,
                                                             ESP_GATT_PERM_READ,
-                                                            illuminance_property,
-                                                            &gatts_demo_char1_val, NULL);
+                                                            smart_plant_property,
+                                                            &gatts_smart_plant_illuminance_val, NULL);
             if (add_char_ret)
             {
                 ESP_LOGE(GATTS_TAG, "add char failed, error code =%x", add_char_ret);
             }
         }
-        else if (para.create.service_id.uuid.uuid.uuid16 == GATTS_SERVICE_UUID_WIFI_STATUS)
+        else if (param->create.service_id.id.uuid.uuid.uuid16 == GATTS_SERVICE_UUID_WIFI_STATUS)
         {
             ESP_LOGI(GATTS_TAG, "CREATE_SERVICE_EVT, status %d,  service_handle %d\n", param->create.status, param->create.service_handle);
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_service_handle = param->create.service_handle;
@@ -497,11 +497,11 @@ static void gatts_smart_plant_profile_handler(esp_gatts_cb_event_t event, esp_ga
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_char_uuid.uuid.uuid16 = GATTS_CHAR_UUID_WIFI_STATUS;
 
             esp_ble_gatts_start_service(gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_service_handle);
-            wifi_property = ESP_GATT_CHAR_PROP_BIT_READ;
+            smart_plant_property = ESP_GATT_CHAR_PROP_BIT_READ;
             esp_err_t add_char_ret = esp_ble_gatts_add_char(gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_service_handle, &gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_char_uuid,
                                                             ESP_GATT_PERM_READ,
-                                                            wifi_property,
-                                                            &gatts_demo_char1_val, NULL);
+                                                            smart_plant_property,
+                                                            &gatts_smart_plant_wifi_status_val, NULL);
             if (add_char_ret)
             {
                 ESP_LOGE(GATTS_TAG, "add char failed, error code =%x", add_char_ret);
@@ -523,7 +523,7 @@ static void gatts_smart_plant_profile_handler(esp_gatts_cb_event_t event, esp_ga
                  param->add_char.status, param->add_char.attr_handle, param->add_char.service_handle);
 
         // soil service
-        if (param.add_char.char_uuid.uuid.uuid16 == GATTS_CHAR_UUID_SOIL_MOISTURE)
+        if (param->add_char.char_uuid.uuid.uuid16 == GATTS_CHAR_UUID_SOIL_MOISTURE)
         {
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].soil_char_handle = param->add_char.attr_handle;
             esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(param->add_char.attr_handle, &length, &prf_char);
@@ -539,7 +539,7 @@ static void gatts_smart_plant_profile_handler(esp_gatts_cb_event_t event, esp_ga
             }
             break;
         } // illuminance service
-        else if (param.add_char.char_uuid.uuid.uuid16 == GATTS_CHAR_UUID_ILLUMINANCE)
+        else if (param->add_char.char_uuid.uuid.uuid16 == GATTS_CHAR_UUID_ILLUMINANCE)
         {
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].illuminance_char_handle = param->add_char.attr_handle;
             esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(param->add_char.attr_handle, &length, &prf_char);
@@ -555,7 +555,7 @@ static void gatts_smart_plant_profile_handler(esp_gatts_cb_event_t event, esp_ga
             }
             break;
         } // wifi service
-        else if (param.add_char.char_uuid.uuid.uuid16 == GATTS_CHAR_UUID_WIFI_STATUS)
+        else if (param->add_char.char_uuid.uuid.uuid16 == GATTS_CHAR_UUID_WIFI_STATUS)
         {
             gl_profile_tab[PROFILE_SMART_PLANT_APP_ID].wifi_char_handle = param->add_char.attr_handle;
             esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(param->add_char.attr_handle, &length, &prf_char);
@@ -661,77 +661,77 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     } while (0);
 }
 
-void app_main(void)
-{
-    esp_err_t ret;
+// void app_main(void)
+// {
+//     esp_err_t ret;
 
-    // Initialize NVS.
-    ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-    {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(ret);
+//     // Initialize NVS.
+//     ret = nvs_flash_init();
+//     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+//     {
+//         ESP_ERROR_CHECK(nvs_flash_erase());
+//         ret = nvs_flash_init();
+//     }
+//     ESP_ERROR_CHECK(ret);
 
-    ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
+//     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
-    esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-    ret = esp_bt_controller_init(&bt_cfg);
-    if (ret)
-    {
-        ESP_LOGE(GATTS_TAG, "%s initialize controller failed: %s\n", __func__, esp_err_to_name(ret));
-        return;
-    }
+//     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+//     ret = esp_bt_controller_init(&bt_cfg);
+//     if (ret)
+//     {
+//         ESP_LOGE(GATTS_TAG, "%s initialize controller failed: %s\n", __func__, esp_err_to_name(ret));
+//         return;
+//     }
 
-    ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
-    if (ret)
-    {
-        ESP_LOGE(GATTS_TAG, "%s enable controller failed: %s\n", __func__, esp_err_to_name(ret));
-        return;
-    }
-    ret = esp_bluedroid_init();
-    if (ret)
-    {
-        ESP_LOGE(GATTS_TAG, "%s init bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
-        return;
-    }
-    ret = esp_bluedroid_enable();
-    if (ret)
-    {
-        ESP_LOGE(GATTS_TAG, "%s enable bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
-        return;
-    }
+//     ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
+//     if (ret)
+//     {
+//         ESP_LOGE(GATTS_TAG, "%s enable controller failed: %s\n", __func__, esp_err_to_name(ret));
+//         return;
+//     }
+//     ret = esp_bluedroid_init();
+//     if (ret)
+//     {
+//         ESP_LOGE(GATTS_TAG, "%s init bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
+//         return;
+//     }
+//     ret = esp_bluedroid_enable();
+//     if (ret)
+//     {
+//         ESP_LOGE(GATTS_TAG, "%s enable bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
+//         return;
+//     }
 
-    ret = esp_ble_gatts_register_callback(gatts_event_handler);
-    if (ret)
-    {
-        ESP_LOGE(GATTS_TAG, "gatts register error, error code = %x", ret);
-        return;
-    }
-    ret = esp_ble_gap_register_callback(gap_event_handler);
-    if (ret)
-    {
-        ESP_LOGE(GATTS_TAG, "gap register error, error code = %x", ret);
-        return;
-    }
-    ret = esp_ble_gatts_app_register(PROFILE_A_APP_ID);
-    if (ret)
-    {
-        ESP_LOGE(GATTS_TAG, "gatts app register error, error code = %x", ret);
-        return;
-    }
-    ret = esp_ble_gatts_app_register(PROFILE_B_APP_ID);
-    if (ret)
-    {
-        ESP_LOGE(GATTS_TAG, "gatts app register error, error code = %x", ret);
-        return;
-    }
-    esp_err_t local_mtu_ret = esp_ble_gatt_set_local_mtu(500);
-    if (local_mtu_ret)
-    {
-        ESP_LOGE(GATTS_TAG, "set local  MTU failed, error code = %x", local_mtu_ret);
-    }
+//     ret = esp_ble_gatts_register_callback(gatts_event_handler);
+//     if (ret)
+//     {
+//         ESP_LOGE(GATTS_TAG, "gatts register error, error code = %x", ret);
+//         return;
+//     }
+//     ret = esp_ble_gap_register_callback(gap_event_handler);
+//     if (ret)
+//     {
+//         ESP_LOGE(GATTS_TAG, "gap register error, error code = %x", ret);
+//         return;
+//     }
+//     ret = esp_ble_gatts_app_register(PROFILE_A_APP_ID);
+//     if (ret)
+//     {
+//         ESP_LOGE(GATTS_TAG, "gatts app register error, error code = %x", ret);
+//         return;
+//     }
+//     ret = esp_ble_gatts_app_register(PROFILE_B_APP_ID);
+//     if (ret)
+//     {
+//         ESP_LOGE(GATTS_TAG, "gatts app register error, error code = %x", ret);
+//         return;
+//     }
+//     esp_err_t local_mtu_ret = esp_ble_gatt_set_local_mtu(500);
+//     if (local_mtu_ret)
+//     {
+//         ESP_LOGE(GATTS_TAG, "set local  MTU failed, error code = %x", local_mtu_ret);
+//     }
 
-    return;
-}
+//     return;
+// }

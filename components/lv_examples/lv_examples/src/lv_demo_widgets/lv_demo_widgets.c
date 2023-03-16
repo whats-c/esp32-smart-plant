@@ -139,8 +139,8 @@ void lv_demo_widgets(void)
 #else
         LV_LOG_WARN("LV_FONT_MONTSERRAT_18 is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.")
 #endif
-#if LV_FONT_MONTSERRAT_12
-        font_normal = &lv_font_montserrat_12;
+#if LV_FONT_MONTSERRAT_8
+        font_normal = &lv_font_montserrat_8;
 #else
         LV_LOG_WARN("LV_FONT_MONTSERRAT_12 is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.")
 #endif

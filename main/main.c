@@ -46,6 +46,21 @@ static void lv_tick_task(void *arg)
 }
 SemaphoreHandle_t xGuiSemaphore;
 
+/**
+ * Basic example to create a "Hello world" label
+ */
+void lv_example_get_started_1(void)
+{
+   /*Change the active screen's background color*/
+   lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
+
+   /*Create a white label, set its text and align it to the center*/
+   lv_obj_t *label = lv_label_create(lv_scr_act());
+   lv_label_set_text(label, "Hello");
+   lv_obj_set_style_text_color(lv_scr_act(), lv_color_hex(0xffffff), LV_PART_MAIN);
+   lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+}
+
 static void gui_task(void *arg)
 {
    xGuiSemaphore = xSemaphoreCreateMutex();
@@ -68,11 +83,14 @@ static void gui_task(void *arg)
    lv_disp_drv_register(&disp_drv);       /*Register the driver and save the created display objects*/
 
    esp_register_freertos_tick_hook(lv_tick_task);
-   // lv_demo_widgets();
+   lv_demo_widgets();
    // lv_demo_music();
-   astronauts_animing();
+   // astronauts_animing();
    // lv_example_animimg_1();
    // lv_demo_benchmark();
+
+   // lv_example_get_started_1();
+
    while (1)
    {
       /* Delay 1 tick (assumes FreeRTOS tick is 10ms */

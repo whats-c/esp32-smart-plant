@@ -150,9 +150,9 @@ static void i2c_test_task(void *arg)
     vTaskDelete(NULL);
 }
 
-void app_main(void)
-{
-    print_mux = xSemaphoreCreateMutex();
-    ESP_ERROR_CHECK(I2C_Init());
-    xTaskCreate(i2c_test_task, "i2c_test_task_0", 1024 * 2, NULL, 10, NULL);
-}
+// void app_main(void)
+// {
+//     print_mux = xSemaphoreCreateMutex();
+//     ESP_ERROR_CHECK(I2C_Init());
+//     xTaskCreate(i2c_test_task, "i2c_test_task_0", 1024 * 2, NULL, 10, NULL);
+// }
