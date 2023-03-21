@@ -13,3 +13,6 @@
 void yl69_setup();
 uint32_t yl69_read();
 uint32_t yl69_normalization(uint32_t value_t);
+uint32_t yl69_get_value();
+void yl69_set_value(uint32_t value_t);
+void yl69_task(void *pvParameter);

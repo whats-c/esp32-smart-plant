@@ -7,6 +7,7 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 #include <string.h>
+#include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
@@ -18,6 +19,11 @@
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
+#include "nvs_flash.h"
+#include "lvgl/lvgl.h"
+#include "lvgl_helpers.h"
+
+#include "page.h"
 
 /* The examples use WiFi configuration that you can set via project configuration menu
 
@@ -28,8 +34,8 @@
 // #define EXAMPLE_ESP_WIFI_PASS CONFIG_ESP_WIFI_PASSWORD
 // #define EXAMPLE_ESP_MAXIMUM_RETRY CONFIG_ESP_MAXIMUM_RETRY
 
-#define EXAMPLE_ESP_WIFI_SSID "your_ssid"
-#define EXAMPLE_ESP_WIFI_PASS "your_password"
+#define EXAMPLE_ESP_WIFI_SSID "iqooneo5"
+#define EXAMPLE_ESP_WIFI_PASS "ctbCTB88.."
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5
 
 #define CONFIG_ESP_WIFI_AUTH_WPA2_PSK 1
@@ -65,15 +71,15 @@ static const char *TAG = "wifi station";
 
 static int s_retry_num = 0;
 
-static void event_handler(void *arg, esp_event_base_t event_base,
-                          int32_t event_id, void *event_data)
+static void wifi_event_handler(void *arg, esp_event_base_t event_base,
+                               int32_t event_id, void *event_data)
 {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
+    switch (event_id)
     {
+    case WIFI_EVENT_STA_START:
         esp_wifi_connect();
-    }
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
-    {
+        break;
+    case WIFI_EVENT_STA_DISCONNECTED:
         if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY)
         {
             esp_wifi_connect();
@@ -84,18 +90,37 @@ static void event_handler(void *arg, esp_event_base_t event_base,
         {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
-        ESP_LOGI(TAG, "connect to the AP fail");
+        // ESP_LOGI(TAG, "connect to the AP fail");
+        // ESP_LOGI(TAG, "Wi-Fi disconnected");
+        // lv_label_set_text(label_status, "Disconnected");
+        // lv_label_set_text(label_ip, "");
+        // lv_label_set_text(label_ssid, "");
+        break;
+    case WIFI_EVENT_STA_CONNECTED:
+        // char ip[20];
+        // char ssid[20];
+        // lv_label_set_text(label_status, "Connected");
+        break;
+    default:
+        break;
     }
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+}
+
+static void ip_event_handler(void *arg, esp_event_base_t event_base,
+                             int32_t event_id, void *event_data)
+{
+    switch (event_id)
     {
+    case IP_EVENT_STA_GOT_IP:
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        // lv_label_set_text_fmt(label_ip, "IP address: %d.%d.%d.%d", IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
 
-void wifi_init_sta(void)
+void wifi_init_state_task(void *parameters)
 {
     s_wifi_event_group = xEventGroupCreate();
 
@@ -111,14 +136,36 @@ void wifi_init_sta(void)
     esp_event_handler_instance_t instance_got_ip;
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
                                                         ESP_EVENT_ANY_ID,
-                                                        &event_handler,
-                                                        NULL,
+                                                        &wifi_event_handler,
+                                                        parameters,
                                                         &instance_any_id));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
                                                         IP_EVENT_STA_GOT_IP,
-                                                        &event_handler,
-                                                        NULL,
+                                                        &ip_event_handler,
+                                                        parameters,
                                                         &instance_got_ip));
+
+    if (parameters == NULL)
+    {
+        ESP_LOGI(TAG, "wifi_init_sta: parameters is NULL");
+        vTaskDelete(NULL);
+    }
+    // get the wifi page instance from the parameters and update the status
+    wifi_page_t *wifi_page_instance;
+    wifi_page_instance = (wifi_page_t *)parameters;
+    // configure the screen backgroud color
+    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
+    // pass the status to wifi page
+    wifi_page_update(WIFI_STATUS, "Connecting...");
+    // create the font format style and apply it to the status label
+    lv_style_t font;
+    lv_style_init(&font);
+    lv_style_set_text_font(&font, &lv_font_montserrat_8);
+    lv_obj_add_style(wifi_page_instance->label_status, LV_PART_MAIN, &font);
+    // set the screen backgroud color
+    lv_obj_set_style_text_color(lv_scr_act(), lv_color_hex(0xffffff), LV_PART_MAIN);
+    // configure the label to display the status
+    lv_obj_align(wifi_page_instance->label_status, LV_ALIGN_CENTER, 0, 0);
 
     wifi_config_t wifi_config = {
         .sta = {
@@ -153,29 +200,40 @@ void wifi_init_sta(void)
     {
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
                  EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+        // lv_label_set_text_fmt(label_ssid, "SSID: %s", EXAMPLE_ESP_WIFI_SSID);
     }
     else if (bits & WIFI_FAIL_BIT)
     {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
                  EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+
+        // Delete event group
+        vEventGroupDelete(s_wifi_event_group);
+        // Delete event handler instances
+        esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip);
+        esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id);
+        // Delete netif
+        esp_netif_destroy(s_wifi_event_group);
+        // Stop Wi-Fi
+        esp_wifi_stop();
+        // Deinitialize Wi-Fi
+        esp_wifi_deinit();
     }
     else
     {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
+        // Delete event group
+        vEventGroupDelete(s_wifi_event_group);
+        // Delete event handler instances
+        esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip);
+        esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id);
+        // Delete netif
+        esp_netif_destroy(s_wifi_event_group);
+        // Stop Wi-Fi
+        esp_wifi_stop();
+        // Deinitialize Wi-Fi
+        esp_wifi_deinit();
     }
+    // delete the task
+    vTaskDelete(NULL);
 }
-
-// void app_main(void)
-// {
-//     // Initialize NVS
-//     esp_err_t ret = nvs_flash_init();
-//     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-//     {
-//         ESP_ERROR_CHECK(nvs_flash_erase());
-//         ret = nvs_flash_init();
-//     }
-//     ESP_ERROR_CHECK(ret);
-
-//     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
-//     wifi_init_sta();
-// }
