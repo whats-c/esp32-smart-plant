@@ -90,16 +90,8 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
-        // ESP_LOGI(TAG, "connect to the AP fail");
-        // ESP_LOGI(TAG, "Wi-Fi disconnected");
-        // lv_label_set_text(label_status, "Disconnected");
-        // lv_label_set_text(label_ip, "");
-        // lv_label_set_text(label_ssid, "");
         break;
     case WIFI_EVENT_STA_CONNECTED:
-        // char ip[20];
-        // char ssid[20];
-        // lv_label_set_text(label_status, "Connected");
         break;
     default:
         break;
@@ -114,7 +106,6 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
     case IP_EVENT_STA_GOT_IP:
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
-        // lv_label_set_text_fmt(label_ip, "IP address: %d.%d.%d.%d", IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
@@ -144,28 +135,6 @@ void wifi_init_state_task(void *parameters)
                                                         &ip_event_handler,
                                                         parameters,
                                                         &instance_got_ip));
-
-    if (parameters == NULL)
-    {
-        ESP_LOGI(TAG, "wifi_init_sta: parameters is NULL");
-        vTaskDelete(NULL);
-    }
-    // get the wifi page instance from the parameters and update the status
-    wifi_page_t *wifi_page_instance;
-    wifi_page_instance = (wifi_page_t *)parameters;
-    // configure the screen backgroud color
-    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
-    // pass the status to wifi page
-    wifi_page_update(WIFI_STATUS, "Connecting...");
-    // create the font format style and apply it to the status label
-    lv_style_t font;
-    lv_style_init(&font);
-    lv_style_set_text_font(&font, &lv_font_montserrat_8);
-    lv_obj_add_style(wifi_page_instance->label_status, LV_PART_MAIN, &font);
-    // set the screen backgroud color
-    lv_obj_set_style_text_color(lv_scr_act(), lv_color_hex(0xffffff), LV_PART_MAIN);
-    // configure the label to display the status
-    lv_obj_align(wifi_page_instance->label_status, LV_ALIGN_CENTER, 0, 0);
 
     wifi_config_t wifi_config = {
         .sta = {

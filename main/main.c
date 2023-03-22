@@ -22,6 +22,13 @@
 
 #include "lvgl/examples/lv_examples.h"
 
+#include "page.h"
+
+lv_obj_t *soil_scr;
+lv_obj_t *illuminance_scr;
+lv_obj_t *wifi_scr;
+lv_obj_t *weather_scr;
+
 LV_IMG_DECLARE(astronauts0) // 包含图片资源文件
 LV_IMG_DECLARE(astronauts1) // 包含图片资源文件
 LV_IMG_DECLARE(astronauts2) // 包含图片资源文件
@@ -156,9 +163,18 @@ void app_main(void)
 
    // lv_example_get_started_1();
    // lv_wifi_page();
-   extern void wifi_init_state_task(void *pvParameter);
 
-   xTaskCreate(wifi_init_state_task, "wifi_init_state_task", 1024 * 5, lv_scr_act(), 5, NULL);
+   // create the default page and shows it
+
+   // create all the pages of soil, illuminance, wifi and weather
+   soil_scr = page_container_init(SOIL_PAGE);
+   illuminance_scr = page_container_init(ILLUMINANCE_PAGE);
+   weather_scr = page_container_init(WEATHER_PAGE);
+   wifi_scr = page_container_init(WIFI_PAGE);
+
+   extern void wifi_init_state_task(void *pvParameter);
+   wifi_page_t *wifi_page_instance = wifi_page_init(lv_scr_act());
+   xTaskCreate(wifi_init_state_task, "wifi_init_state_task", 1024 * 5, wifi_page_instance, 5, NULL);
 
    while (1)
    {
