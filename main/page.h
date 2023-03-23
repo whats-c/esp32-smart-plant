@@ -73,7 +73,7 @@ enum container_type
 
 page_container_t *page_container_init(enum container_type ctype);
 void page_container_deinit(page_container_t *container);
-void page_container_load(enum container_type ctype, page_container_t *container);
+void page_container_load(enum container_type ctype, page_container_t *container_current, page_container_t *container);
 
 wifi_page_t *wifi_page_init(lv_obj_t *src);
 void wifi_page_deinit(wifi_page_t *page);

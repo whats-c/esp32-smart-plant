@@ -90,6 +90,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
+        ESP_LOGI(TAG, "connect to the AP fail");
         break;
     case WIFI_EVENT_STA_CONNECTED:
         break;
@@ -135,6 +136,10 @@ void wifi_init_state_task(void *parameters)
                                                         &ip_event_handler,
                                                         parameters,
                                                         &instance_got_ip));
+
+    page_container_t *wifi_container_instance = (page_container_t *)parameters;
+    wifi_page_t *wifi_page_instance = (wifi_page_t *)wifi_container_instance->page;
+    wifi_page_update(wifi_page_instance, WIFI_STATUS, "Connecting to AP");
 
     wifi_config_t wifi_config = {
         .sta = {

@@ -7,30 +7,31 @@ page_container_t *page_container_init(enum container_type ctype)
 {
     page_container_t *page_container_instance = malloc(sizeof(page_container_t));
     page_container_instance->mux = xSemaphoreCreateMutex();
-    lv_obj_t *scr = lv_obj_create(NULL);
-    lv_obj_add_flag(scr, LV_OBJ_FLAG_HIDDEN);
+
+    page_container_instance->scr = lv_obj_create(lv_scr_act());
+    lv_obj_add_flag(page_container_instance->scr, LV_OBJ_FLAG_HIDDEN);
 
     switch (ctype)
     {
     case SOIL_PAGE:
         // configure the soil page screen object
-        lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
-        page_container_instance->page = soil_page_init(scr);
+        lv_obj_set_style_bg_color(page_container_instance->scr, lv_color_hex(0x003a57), LV_PART_MAIN);
+        page_container_instance->page = soil_page_init(page_container_instance->scr);
         break;
     case ILLUMINANCE_PAGE:
         // configure the soil page screen object
-        lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
-        page_container_instance->page = illuminance_page_init(scr);
+        lv_obj_set_style_bg_color(page_container_instance->scr, lv_color_hex(0x003a57), LV_PART_MAIN);
+        page_container_instance->page = illuminance_page_init(page_container_instance->scr);
         break;
     case WIFI_PAGE:
         // configure the soil page screen object
-        lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
-        page_container_instance->page = wifi_page_init(scr);
+        lv_obj_set_style_bg_color(page_container_instance->scr, lv_color_hex(0x003a57), LV_PART_MAIN);
+        page_container_instance->page = wifi_page_init(page_container_instance->scr);
         break;
     case WEATHER_PAGE:
         // configure the soil page screen object
-        lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
-        page_container_instance->page = weather_page_init(scr);
+        lv_obj_set_style_bg_color(page_container_instance->scr, lv_color_hex(0x003a57), LV_PART_MAIN);
+        page_container_instance->page = weather_page_init(page_container_instance->scr);
         break;
     default:
         return NULL;
@@ -100,14 +101,14 @@ wifi_page_t *wifi_page_init(lv_obj_t *src)
     // create a font style object
     lv_style_t *font_style = malloc(sizeof(lv_style_t));
     lv_style_init(font_style);
-    lv_style_set_text_font(font_style, LV_STATE_DEFAULT, &lv_font_montserrat_8);
-    lv_style_set_text_color(font_style, LV_STATE_DEFAULT, lv_color_hex(0xffffff));
-    lv_style_set_text_align(font_style, LV_STATE_DEFAULT, LV_TEXT_ALIGN_LEFT);
+    lv_style_set_text_font(font_style, &lv_font_montserrat_8);
+    lv_style_set_text_color(font_style, lv_color_hex(0xffffff));
+    lv_style_set_text_align(font_style, LV_TEXT_ALIGN_LEFT);
 
     // add the font style to the labels
-    lv_obj_add_style(wifi_page_instance->label_status, LV_LABEL_PART_MAIN, font_style);
-    lv_obj_add_style(wifi_page_instance->label_ip, LV_LABEL_PART_MAIN, font_style);
-    lv_obj_add_style(wifi_page_instance->label_ssid, LV_LABEL_PART_MAIN, font_style);
+    lv_obj_add_style(wifi_page_instance->label_status, LV_PART_MAIN, font_style);
+    lv_obj_add_style(wifi_page_instance->label_ip, LV_PART_MAIN, font_style);
+    lv_obj_add_style(wifi_page_instance->label_ssid, LV_PART_MAIN, font_style);
 
     // set the label text
     lv_label_set_text(wifi_page_instance->label_status, "Status: ");
@@ -115,9 +116,9 @@ wifi_page_t *wifi_page_init(lv_obj_t *src)
     lv_label_set_text(wifi_page_instance->label_ssid, "SSID: ");
 
     // set the label position
-    lv_obj_align(wifi_page_instance->label_status, LV_ALIGN_IN_TOP_LEFT, 10, 10);
-    lv_obj_align(wifi_page_instance->label_ip, LV_ALIGN_IN_TOP_LEFT, 10, 30);
-    lv_obj_align(wifi_page_instance->label_ssid, LV_ALIGN_IN_TOP_LEFT, 10, 50);
+    lv_obj_align(wifi_page_instance->label_status, LV_ALIGN_OUT_TOP_LEFT, 10, 10);
+    lv_obj_align(wifi_page_instance->label_ip, LV_ALIGN_OUT_TOP_LEFT, 10, 30);
+    lv_obj_align(wifi_page_instance->label_ssid, LV_ALIGN_OUT_TOP_LEFT, 10, 50);
 
     return wifi_page_instance;
 }
@@ -128,10 +129,13 @@ int wifi_page_update(wifi_page_t *wifi_page_instance, enum page_type ptype, void
     {
     case WIFI_STATUS:
         lv_label_set_text_fmt(wifi_page_instance->label_status, "%s", (char *)value);
+        break;
     case WIFI_IP:
         lv_label_set_text_fmt(wifi_page_instance->label_ip, "%s", (char *)value);
+        break;
     case WIFI_SSID:
         lv_label_set_text_fmt(wifi_page_instance->label_ssid, "%s", (char *)value);
+        break;
     default:
         return -1;
     }
@@ -166,18 +170,18 @@ soil_page_t *soil_page_init(lv_obj_t *src)
     // create a font style object
     lv_style_t *font_style = malloc(sizeof(lv_style_t));
     lv_style_init(font_style);
-    lv_style_set_text_font(font_style, LV_STATE_DEFAULT, &lv_font_montserrat_8);
-    lv_style_set_text_color(font_style, LV_STATE_DEFAULT, lv_color_hex(0xffffff));
-    lv_style_set_text_align(font_style, LV_STATE_DEFAULT, LV_TEXT_ALIGN_LEFT);
+    lv_style_set_text_font(font_style, &lv_font_montserrat_8);
+    lv_style_set_text_color(font_style, lv_color_hex(0xffffff));
+    lv_style_set_text_align(font_style, LV_TEXT_ALIGN_LEFT);
 
     // add the font style to the labels
-    lv_obj_add_style(soil_page_instance->moisture, LV_LABEL_PART_MAIN, font_style);
+    lv_obj_add_style(soil_page_instance->moisture, LV_PART_MAIN, font_style);
 
     // set the label text
     lv_label_set_text(soil_page_instance->moisture, "Moisture: ");
 
     // set the label position
-    lv_obj_align(soil_page_instance->moisture, LV_ALIGN_IN_TOP_LEFT, 10, 10);
+    lv_obj_align(soil_page_instance->moisture, LV_ALIGN_OUT_TOP_LEFT, 10, 10);
 
     return soil_page_instance;
 }
@@ -221,18 +225,18 @@ illuminance_page_t *illuminance_page_init(lv_obj_t *src)
     // create a font style object
     lv_style_t *font_style = malloc(sizeof(lv_style_t));
     lv_style_init(font_style);
-    lv_style_set_text_font(font_style, LV_STATE_DEFAULT, &lv_font_montserrat_8);
-    lv_style_set_text_color(font_style, LV_STATE_DEFAULT, lv_color_hex(0xffffff));
-    lv_style_set_text_align(font_style, LV_STATE_DEFAULT, LV_TEXT_ALIGN_LEFT);
+    lv_style_set_text_font(font_style, &lv_font_montserrat_8);
+    lv_style_set_text_color(font_style, lv_color_hex(0xffffff));
+    lv_style_set_text_align(font_style, LV_TEXT_ALIGN_LEFT);
 
     // add the font style to the labels
-    lv_obj_add_style(illuminance_page_instance->illuminance, LV_LABEL_PART_MAIN, font_style);
+    lv_obj_add_style(illuminance_page_instance->illuminance, LV_PART_MAIN, font_style);
 
     // set the label text
     lv_label_set_text(illuminance_page_instance->illuminance, "Illuminance: ");
 
     // set the label position
-    lv_obj_align(illuminance_page_instance->illuminance, LV_ALIGN_IN_TOP_LEFT, 10, 10);
+    lv_obj_align(illuminance_page_instance->illuminance, LV_ALIGN_OUT_TOP_LEFT, 10, 10);
 
     return illuminance_page_instance;
 }
@@ -278,14 +282,14 @@ weather_page_t *weather_page_init(lv_obj_t *src)
     // create a font style object
     lv_style_t *font_style = malloc(sizeof(lv_style_t));
     lv_style_init(font_style);
-    lv_style_set_text_font(font_style, LV_STATE_DEFAULT, &lv_font_montserrat_8);
-    lv_style_set_text_color(font_style, LV_STATE_DEFAULT, lv_color_hex(0xffffff));
-    lv_style_set_text_align(font_style, LV_STATE_DEFAULT, LV_TEXT_ALIGN_LEFT);
+    lv_style_set_text_font(font_style, &lv_font_montserrat_8);
+    lv_style_set_text_color(font_style, lv_color_hex(0xffffff));
+    lv_style_set_text_align(font_style, LV_TEXT_ALIGN_LEFT);
 
     // add the font style to the labels
-    lv_obj_add_style(weather_page_instance->temperature, LV_LABEL_PART_MAIN, font_style);
-    lv_obj_add_style(weather_page_instance->humidity, LV_LABEL_PART_MAIN, font_style);
-    lv_obj_add_style(weather_page_instance->pressure, LV_LABEL_PART_MAIN, font_style);
+    lv_obj_add_style(weather_page_instance->temperature, LV_PART_MAIN, font_style);
+    lv_obj_add_style(weather_page_instance->humidity, LV_PART_MAIN, font_style);
+    lv_obj_add_style(weather_page_instance->pressure, LV_PART_MAIN, font_style);
 
     // set the label text
     lv_label_set_text(weather_page_instance->temperature, "Temperature: ");
@@ -293,9 +297,9 @@ weather_page_t *weather_page_init(lv_obj_t *src)
     lv_label_set_text(weather_page_instance->pressure, "Pressure: ");
 
     // set the label position
-    lv_obj_align(weather_page_instance->temperature, LV_ALIGN_IN_TOP_LEFT, 10, 10);
-    lv_obj_align(weather_page_instance->humidity, LV_ALIGN_IN_TOP_LEFT, 10, 20);
-    lv_obj_align(weather_page_instance->pressure, LV_ALIGN_IN_TOP_LEFT, 10, 30);
+    lv_obj_align(weather_page_instance->temperature, LV_ALIGN_OUT_TOP_LEFT, 10, 10);
+    lv_obj_align(weather_page_instance->humidity, LV_ALIGN_OUT_TOP_LEFT, 10, 20);
+    lv_obj_align(weather_page_instance->pressure, LV_ALIGN_OUT_TOP_LEFT, 10, 30);
 
     return weather_page_instance;
 }
