@@ -110,7 +110,7 @@ void app_main(void)
    // lv_disp_set_rotation(disp, LV_DISP_ROT_90);
    // lv_demo_widgets();
    // lv_demo_music();
-   // astronauts_animing();
+   astronauts_animing();
    // lv_example_animimg_1();
    // lv_demo_benchmark();
 
@@ -127,9 +127,9 @@ void app_main(void)
    xTaskCreate(wifi_init_state_task, "wifi_init_state_task", 1024 * 4, wifi_scr, 5, NULL);
 
    extern void http_test_task(void *parameters);
-   xTaskCreate(http_test_task, "http_test_task", 1024 * 4, NULL, 5, NULL);
+   xTaskCreate(http_test_task, "http_test_task", 1024 * 6, NULL, 5, NULL);
 
-   page_container_load(WIFI_PAGE, wifi_scr, wifi_scr);
+   // page_container_load(WIFI_PAGE, wifi_scr, wifi_scr);
 
    while (1)
    {
