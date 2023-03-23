@@ -74,6 +74,9 @@ static int s_retry_num = 0;
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data)
 {
+    page_container_t *wifi_scr_instance = (page_container_t *)arg;
+    wifi_page_t *wifi_page_instance = (wifi_page_t *)wifi_scr_instance->page;
+
     switch (event_id)
     {
     case WIFI_EVENT_STA_START:
@@ -91,8 +94,14 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
         ESP_LOGI(TAG, "connect to the AP fail");
+
+        ESP_LOGI(TAG, "connect to the AP fail");
+        wifi_page_update(wifi_page_instance, WIFI_STATUS, "DISCONNECTED");
         break;
     case WIFI_EVENT_STA_CONNECTED:
+        ESP_LOGI(TAG, "connect to the AP success");
+        wifi_page_update(wifi_page_instance, WIFI_STATUS, "CONNECTED");
+        wifi_page_update(wifi_page_instance, WIFI_SSID, EXAMPLE_ESP_WIFI_SSID);
         break;
     default:
         break;
@@ -102,6 +111,8 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
 static void ip_event_handler(void *arg, esp_event_base_t event_base,
                              int32_t event_id, void *event_data)
 {
+    page_container_t *wifi_scr_instance = (page_container_t *)arg;
+    wifi_page_t *wifi_page_instance = (wifi_page_t *)wifi_scr_instance->page;
     switch (event_id)
     {
     case IP_EVENT_STA_GOT_IP:
@@ -109,6 +120,10 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+
+        char ip_str[16];
+        sprintf(ip_str, IPSTR, IP2STR(&event->ip_info.ip));
+        wifi_page_update(wifi_page_instance, WIFI_IP, ip_str);
     }
 }
 
@@ -139,7 +154,7 @@ void wifi_init_state_task(void *parameters)
 
     page_container_t *wifi_container_instance = (page_container_t *)parameters;
     wifi_page_t *wifi_page_instance = (wifi_page_t *)wifi_container_instance->page;
-    wifi_page_update(wifi_page_instance, WIFI_STATUS, "Connecting to AP");
+    wifi_page_update(wifi_page_instance, WIFI_STATUS, "Connecting ...");
 
     wifi_config_t wifi_config = {
         .sta = {
