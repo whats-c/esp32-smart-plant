@@ -12,7 +12,7 @@
 #define MAX_HTTP_OUTPUT_BUFFER 2048
 #define TAG "HTTP_CLIENT"
 
-static void http_test_task(void *pvParameters)
+void http_test_task(void *pvParameters)
 {
 
     // 02-1 定义需要的变量
@@ -26,7 +26,7 @@ static void http_test_task(void *pvParameters)
     memset(&config, 0, sizeof(config));
 
     // 向配置结构体内部写入url
-    static const char *URL = "https://api.seniverse.com/v3/weather/now.json?key=your_api_key&location=beijing&language=zh-Hans&unit=c";
+    static const char *URL = "https://api.seniverse.com/v3/weather/now.json?key=SVI19fhHzd6vQS3kB&location=beijing&language=zh-Hans&unit=c";
     config.url = URL;
 
     // 初始化结构体

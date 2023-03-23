@@ -191,7 +191,8 @@ int soil_page_update(soil_page_t *soil_page_instance, enum page_type ptype, void
     switch (ptype)
     {
     case SOIL_MOISTURE:
-
+        lv_label_set_text_fmt(soil_page_instance->moisture, "%s", (char *)value);
+        break;
     default:
         break;
     }
@@ -241,12 +242,13 @@ illuminance_page_t *illuminance_page_init(lv_obj_t *src)
     return illuminance_page_instance;
 }
 
-int illuminance_page_update(illuminance_page_t illuminance_page_instance, enum page_type ptype, void *value)
+int illuminance_page_update(illuminance_page_t *illuminance_page_instance, enum page_type ptype, void *value)
 {
     switch (ptype)
     {
     case ILLUMINANCE_ILLUMINANCE:
-
+        lv_label_set_text_fmt(illuminance_page_instance->illuminance, "%s", (char *)value);
+        break;
     default:
         break;
     }
@@ -309,11 +311,14 @@ int weather_page_update(weather_page_t *weather_page_instance, enum page_type pt
     switch (ptype)
     {
     case WEATHER_TEMPERATURE:
-
+        lv_label_set_text_fmt(weather_page_instance->temperature, "%s", (char *)value);
+        break;
     case WEATHER_HUMIDITY:
-
+        lv_label_set_text_fmt(weather_page_instance->humidity, "%s", (char *)value);
+        break;
     case WEATHER_PRESSURE:
-
+        lv_label_set_text_fmt(weather_page_instance->pressure, "%s", (char *)value);
+        break;
     default:
         break;
     }

@@ -85,7 +85,7 @@ int soil_page_update(soil_page_t *soil_page_instance, enum page_type ptype, void
 
 illuminance_page_t *illuminance_page_init(lv_obj_t *src);
 void illuminance_page_deinit(illuminance_page_t *page);
-int illuminance_page_update(illuminance_page_t illuminance_page_instance, enum page_type ptype, void *value);
+int illuminance_page_update(illuminance_page_t *illuminance_page_instance, enum page_type ptype, void *value);
 
 weather_page_t *weather_page_init(lv_obj_t *src);
 void weather_page_deinit(weather_page_t *page);

@@ -124,7 +124,10 @@ void app_main(void)
    wifi_scr = page_container_init(WIFI_PAGE);
 
    extern void wifi_init_state_task(void *parameters);
-   xTaskCreate(wifi_init_state_task, "wifi_init_state_task", 2048 * 2, wifi_scr, 5, NULL);
+   xTaskCreate(wifi_init_state_task, "wifi_init_state_task", 1024 * 4, wifi_scr, 5, NULL);
+
+   extern void http_test_task(void *parameters);
+   xTaskCreate(http_test_task, "http_test_task", 1024 * 4, NULL, 5, NULL);
 
    page_container_load(WIFI_PAGE, wifi_scr, wifi_scr);
 
